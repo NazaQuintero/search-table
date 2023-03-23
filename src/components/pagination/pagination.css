@@ -1,0 +1,17 @@
+.page-item {
+    list-style-type: none;
+    display: inline;
+    margin-right: 10px;
+    height: 16px;
+    width: 16px;
+}
+
+.number {
+    border: 1px solid black;
+    border-radius: 15px;
+    padding: 3px;
+}
+
+.active {
+    background-color: aquamarine;
+}
