@@ -1,35 +1,24 @@
-import { LocalCommerceData, SortableFieldsType } from '../../types'
-import { Header } from './header'
+import { ColumnType, SortableFieldsType, SortingPayload } from '../../types'
+import { TableHeader } from './tableHeader'
+import { TableRows } from './tableRows'
 import './table.css'
 
-type ContentProps = {
-    entries: LocalCommerceData[]
-}
-
-const Content = (props: ContentProps) => {
-    return (
-        <tbody>
-            { props.entries.map( (data) => (
-                <tr key={data.id}>
-                    {Object.entries(data).map( itemProp => <td key={itemProp[0]} className='table-cell'>{itemProp[1].toString()}</td> )}
-                </tr>
-            ))}
-        </tbody>
-    )
-}
-
-type TableProps = {
+type TableProps<T, K extends keyof T> = {
+    data: Array<T>,
+    columns: Array<ColumnType<T, K>>,
     sorting: SortableFieldsType,
-    setSorting: (sorting: SortableFieldsType) => void,
-    columnNames: string[],
-    entries: LocalCommerceData[]
+    setAscendingSort : (payload: SortingPayload) => void
+    setDescendingSort : (payload: SortingPayload) => void
+    unsetSort : (payload: SortingPayload) => void
 }
-export const Table = (props: TableProps) => {
+
+export const Table = <T, K extends keyof T>(props: TableProps<T,K>) => {
+    const { data, columns, sorting, setAscendingSort, setDescendingSort, unsetSort} = props;
     return (
         <div>
             <table className='table'>
-                <Header columnNames={props.columnNames} sorting={props.sorting} setSorting={props.setSorting}/>
-                <Content entries={props.entries} />
+                <TableHeader columns={columns} sorting={sorting} setAscendingSort={setAscendingSort} setDescendingSort={setDescendingSort} unsetSort={unsetSort} />
+                <TableRows data={data} columns={columns} />
             </table>
         </div>
     )

@@ -1,43 +1,45 @@
-import { useCallback, useMemo } from "react";
-import { SortableFieldsType } from "../../types";
+import { useMemo } from "react";
+import { ColumnType, SortableFieldsType, SortingPayload } from "../../types";
 
-export type CellProps = {
-    column: string,
+export type TableCellProps<T, K extends keyof T> = {
+    column: ColumnType<T, K>,
     sorting: SortableFieldsType,
-    setSorting: (sorting: SortableFieldsType) => void
+    setAscendingSort : (payload: SortingPayload) => void
+    setDescendingSort : (payload: SortingPayload) => void
+    unsetSort : (payload: SortingPayload) => void
 }
 
-export const Cell = (props: CellProps) => {
-    const {column, sorting, setSorting} = props;
-
-    const setSortingValue = useCallback((sortingValue: 0 | -1 | 1) => {
-        const updatedSorting = {...sorting}
-        updatedSorting[column] = sortingValue;
-        setSorting(updatedSorting);
-    }, [column, sorting, setSorting])
-
-    const setAscending = useCallback(() => setSortingValue(1), [setSortingValue])
-    const setDescending = useCallback(() => setSortingValue(-1), [setSortingValue])
-    const setDefaultOrder = useCallback(() => setSortingValue(0), [setSortingValue])
+export const TableCell = <T, K extends keyof T>(props: TableCellProps<T,K>) => {
+    const {
+        column,
+        sorting,
+        setAscendingSort,
+        setDescendingSort,
+        unsetSort
+    } = props;
 
     const sortableIcon = useMemo(() => {
-        const sortOrder = sorting[column];
+
+        const propName = column.key as string;
+        const sortOrder = sorting[propName];
+        const payload = { sorting: sorting, sortingKey: propName };
+
         switch (sortOrder) {
             case 0:
-                return <span onClick={setAscending}>⇅</span>
+                return <span onClick={() => setAscendingSort(payload)}>⇅</span>
             case 1:
-                return <span onClick={setDescending}>↑</span>
+                return <span onClick={() => setDescendingSort(payload)}>↑</span>
             case -1:
-                return <span onClick={setDefaultOrder}>↓</span>
+                return <span onClick={() => unsetSort(payload)}>↓</span>
             default:
                 return <></>;
         }
-    }, [column, sorting, setAscending, setDescending, setDefaultOrder])
+    }, [column, sorting, setAscendingSort, setDescendingSort, unsetSort])
 
     return (
-        <th key={props.column} className='table-cell'>
+        <th key={props.column.header} className='table-cell'>
             {sortableIcon}
-            {props.column.toUpperCase()}
+            {props.column.header}
         </th>
     )
 }

@@ -1,6 +1,3 @@
-export type LocalCommerceData = {
-    id: string
-}
 
 export type StoresData = {
     data: CommerceData[]
@@ -10,7 +7,15 @@ export type StoresData = {
     total: number
 }
 
-export type CommerceData = {
+export type ColumnType<T, K extends keyof T> = {
+    key: K,
+    header: string,
+    searchable: boolean,
+    filterable: boolean,
+    sortable: boolean
+}
+
+export interface CommerceData {
     id: string,
     comercio: string,
     cuit: string,
@@ -23,22 +28,24 @@ export type CommerceData = {
     ultimaVenta: string,
 }
 
-
-export type SearchableFields = {
-    id: boolean,
-    comercio: boolean,
-    cuit: boolean
-}
-
-export type FilterableFields = {
-    activo: -1 | 0 | 1
-}
+export type SearchableFieldsType = { [propKey: string]: boolean };
 
 export type FilterableFieldsType = { [propKey: string]: number };
 
 export type SortableFieldsType = { [propKey: string]: number };
 
-export type SortableFields = {
-    comercio: -1 | 0 | 1,
-    cuit: -1 | 0 | 1
+export enum SortingActionTypes {
+    UNSET = 'UNSET',
+    ASCENDING = 'ASCENDING',
+    DESCENDING = 'UNLIKED'
+}
+
+export type SortingPayload = {
+    sorting: SortableFieldsType,
+    sortingKey: string
+}
+
+export type SortingActions = {
+    type: SortingActionTypes;
+    payload: SortingPayload
 }

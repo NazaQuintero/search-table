@@ -1,7 +1,7 @@
-import { FilterableFieldsType, SearchableFields } from "../types"
+import { FilterableFieldsType, SearchableFieldsType } from "../types"
 
 export type FiltersType = {
-    searchableFields: SearchableFields,
+    searchableFields: SearchableFieldsType,
     handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void,
     filterableFields: FilterableFieldsType,
     handleFilterChange: (e: any) => void
