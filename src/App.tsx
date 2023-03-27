@@ -125,7 +125,7 @@ const App = () => {
     const newUrl = getUrl(url, searchedText, filterableFields, searchableFieldsState, sortableFieldsState, skipFrom)
     
     setUrl(newUrl)
-  }, [setUrl, url, searchedText, filterableFields, searchableFieldsState, sortableFieldsState, pageNumber, skipFrom])
+  }, [setUrl, url, searchedText, filterableFields, searchableFieldsState, sortableFieldsState, skipFrom])
 
   return (
     <div>
