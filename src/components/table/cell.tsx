@@ -35,11 +35,11 @@ export const TableCell = <T, K extends keyof T>(props: TableCellProps<T,K>) => {
 
         switch (sortOrder) {
             case 0:
-                return <span className="sort-icon" onClick={() => setAscendingSort(payload)}>⇅</span>
+                return <span data-testid="sort-icon" className="sort-icon" onClick={() => setAscendingSort(payload)}>⇅</span>
             case 1:
-                return <span className="sort-icon" onClick={() => setDescendingSort(payload)}>↑</span>
+                return <span data-testid="sort-icon" className="sort-icon" onClick={() => setDescendingSort(payload)}>↑</span>
             case -1:
-                return <span className="sort-icon" onClick={() => unsetSort(payload)}>↓</span>
+                return <span data-testid="sort-icon" className="sort-icon" onClick={() => unsetSort(payload)}>↓</span>
             default:
                 return <></>;
         }
