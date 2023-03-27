@@ -13,7 +13,7 @@ export class FetchMock {
       while(elementsPerPage <= 5) {
         data.push({ 
           id: `${counter}`,
-          comercio: "Zapatillas",
+          comercio: `Zapatillas${counter}`,
           cuit: "20123475691823",
           concepto1: 18,
           concepto2: 20,
