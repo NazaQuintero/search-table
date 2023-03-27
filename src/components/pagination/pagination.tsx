@@ -17,22 +17,20 @@ export const Pagination = (props: PaginationProps) => {
         pages.push(index)
     }
 
-    
-
     return (
         <nav>
             <ul>
                 <li className='page-item'>
-                    <a href="#" onClick={props.prevPage}>Prev</a>
+                    <button onClick={props.prevPage}>Prev</button>
                 </li>
                 {
                     pages.map( number => 
                         <li key={number} className={`page-item number ${props.currentPage === number ? 'active' : ''}`}>
-                            <a href="#" onClick={() => props.setPage(number)}>{number}</a>
+                            <button onClick={() => props.setPage(number)}>{number}</button>
                         </li>)
                 }
                 <li className='page-item'>
-                    <a href="#" onClick={props.nextPage}>Next</a>
+                    <button onClick={props.nextPage}>Next</button>
                 </li>
             </ul>
         </nav>

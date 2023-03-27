@@ -1,43 +1,61 @@
-import { FilterableFieldsType, SearchableFields, SortableFieldsType } from "../types";
+import { FilterableFieldsType, SearchableFieldsType, SortableFieldsType } from "../types";
 
-export const getUrlWithSearchedValueGivenFilteredFields = (searchedExpression: string, fields: SearchableFields): string => {
-    const params: string[] = [];
-    for (const [key, value] of Object.entries(fields)) {
-        if(value === true) {
-            params.push(key)
-        }
+export const getUrlWithSearchedValueGivenFilteredFields = (searchedExpression: string, fields: SearchableFieldsType): string => {
+    if (searchedExpression === "") {
+        return "";
     }
-    const paramsStr = params.map(param => `"${param}": {"$regex": "${searchedExpression}"}`)
+
+    const paramsStr = Object.entries(fields)
+        .filter( ([, value]) => value !== false)
+        .map( ([key,]) => `"${key}": {"$regex": "${searchedExpression}"}`)
+
     return paramsStr.join(",");
 }
 
 export const getUrlSortingFields = (fields: SortableFieldsType): string => {
-    const params: string[] = [];
-    for (const [key, value] of Object.entries(fields)) {
-        if(value !== 0) {
-            params.push(`&sort=${key}&dir=${value}`)
-        }
+
+    const paramsStr = Object.entries(fields)
+        .filter(([, value]) => value !== 0)
+        .map(([key, value]) => `"${key}":${value}`)
+
+    const joinedParams = paramsStr.join(",")
+    if(joinedParams === "") {
+        return ""
     }
-    return params.join("");
+    return `"$orderby": {${joinedParams}}`;
 }
 
 export const getUrlFilteredFields = (fields: FilterableFieldsType): string => {
-    const params: string[] = [];
-    for (const [key, value] of Object.entries(fields)) {
-        if(value !== -1) {
-            params.push(`"${key}": ${value}`)            
-        }
-    }
-    return params.join(",");
+  
+    const paramsStr = Object.entries(fields)
+        .filter(([, value]) => value !== -1)
+        .map(([key, value]) => `"${key}": {"$not": ${value}}`)
+
+    return paramsStr.join(",");
 }
 
 export const getSkipedValues = (skipFrom: number): string => {
     if (skipFrom === 0) {
         return '';
     }
-    return `&skip=${skipFrom}`;
+    return `"$skip":${skipFrom}`;
 }
 
-export const getUrl = (baseUri: string, searchedText: string, filterablesFields: FilterableFieldsType , searchableFields: SearchableFields, sorting: SortableFieldsType, skipFrom: number) => {
-    return baseUri + '?q={' + getUrlWithSearchedValueGivenFilteredFields(searchedText, searchableFields) + ',' + getUrlFilteredFields(filterablesFields) + getUrlSortingFields(sorting) + getSkipedValues(skipFrom) + '}';
+export const getUrl = (baseUri: string, searchedText: string, filterablesFields: FilterableFieldsType , searchableFields: SearchableFieldsType, sorting: SortableFieldsType, skipFrom: number) => {
+    const fieldsWithSearchExpression = getUrlWithSearchedValueGivenFilteredFields(searchedText, searchableFields);
+    const filteredFields = getUrlFilteredFields(filterablesFields);
+    const hasSomeValueBefore = fieldsWithSearchExpression !== "";
+    const hasSomeFilteredField = filteredFields !== "";
+    const filteredFieldsSeparated = hasSomeValueBefore && hasSomeFilteredField ? `,${filteredFields}` : filteredFields;
+
+    const query = fieldsWithSearchExpression + filteredFieldsSeparated;
+
+    const sortingParams = getUrlSortingFields(sorting);
+    const skipedValues = getSkipedValues(skipFrom);
+    const hasSortingParams = sortingParams !== ""
+    const hasSkipedValues = skipedValues !== ""
+    const skipedParamSeparated = hasSortingParams && hasSkipedValues ? `,${skipedValues}` : skipedValues;
+    const hint = sortingParams + skipedParamSeparated;
+
+    return baseUri + `?q={${query}}&h{${hint}}`;
 }

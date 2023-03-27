@@ -1,8 +1,8 @@
-import { FilterableFields, SearchableFields, SortableFields } from '../types';
-import {getUrlWithSearchedValueGivenFilteredFields, getUrlSortingFields, getUrlFilteredFields, getSkipedValues} from './uriBuilder'
+import { FilterableFieldsType, SearchableFieldsType, SortableFieldsType } from '../types';
+import { getUrlWithSearchedValueGivenFilteredFields, getUrlSortingFields, getUrlFilteredFields, getSkipedValues } from './uriBuilder'
 
 test('should create params with id, comercio and cuit value', () => {
-    const filteredValues: SearchableFields = {
+    const filteredValues: SearchableFieldsType = {
         id: true,
         comercio: true,
         cuit: true
@@ -13,7 +13,7 @@ test('should create params with id, comercio and cuit value', () => {
 });
 
 test('should create params with id and comercio', () => {
-    const filteredValues: SearchableFields = {
+    const filteredValues: SearchableFieldsType = {
         id: true,
         comercio: true,
         cuit: false
@@ -24,26 +24,26 @@ test('should create params with id and comercio', () => {
 });
 
 test('should create params with sorting value', () => {
-    const sortingValues: SortableFields = {
+    const sortingValues: SortableFieldsType = {
         comercio : 1,
         cuit: -1
     }
   expect(getUrlSortingFields(sortingValues)).toBe(
-    `&sort=comercio&dir=1&sort=cuit&dir=-1`
+    `"$orderby": {"comercio":1,"cuit":-1}`
     );
 });
 
 test('should create params with filer value when is 1 o 0', () => {
-  const filterablesFields: FilterableFields = {
+  const filterablesFields: FilterableFieldsType = {
       activo: 1
   }
   expect(getUrlFilteredFields(filterablesFields)).toBe(
-    `"activo": 1`
+    `"activo": {"$not": 1}`
   );
 });
 
 test('should not add params when activo is -1', () => {
-  const filterablesFields: FilterableFields = {
+  const filterablesFields: FilterableFieldsType = {
       activo: -1
   }
   expect(getUrlFilteredFields(filterablesFields)).toBe(
@@ -54,7 +54,7 @@ test('should not add params when activo is -1', () => {
 test('it should return a &skip=value when skip from its greater than 0', () => {
   const skipFrom = 10;
   expect(getSkipedValues(skipFrom)).toBe(
-    `&skip=${skipFrom}`
+    `"$skip":${skipFrom}`
   );
 });
 

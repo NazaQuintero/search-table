@@ -1,14 +1,11 @@
-import { ColumnType, SearchableFieldsType, SortableFieldsType, SortingPayload, FilterableFieldsType, FilteringPayload } from '../../types'
-import { TableHeader } from './tableHeader'
-import { TableRows } from './tableRows'
-import './table.css'
+import { ColumnType, FilterableFieldsType, FilteringPayload, SearchableFieldsType, SortableFieldsType, SortingPayload } from "../../types"
+import { TableCell } from "./cell"
 
-type TableProps<T, K extends keyof T> = {
-    data: Array<T>,
+export type TableHeaderProps<T, K extends keyof T> = {
     columns: Array<ColumnType<T, K>>,
     sorting: SortableFieldsType,
     filterableFields: FilterableFieldsType,
-    setFilteringValue: (payload: FilteringPayload) => void
+    setFilteringValue: (payload: FilteringPayload) => void,
     searchableFields: SearchableFieldsType,
     handleSearchableChange: (e: any) => void,
     setAscendingSort : (payload: SortingPayload) => void
@@ -16,9 +13,9 @@ type TableProps<T, K extends keyof T> = {
     unsetSort : (payload: SortingPayload) => void
 }
 
-export const Table = <T, K extends keyof T>(props: TableProps<T,K>) => {
+export const TableHeader = <T, K extends keyof T>( props : TableHeaderProps<T, K>) => {
+
     const { 
-        data,
         columns,
         sorting,
         filterableFields,
@@ -30,23 +27,26 @@ export const Table = <T, K extends keyof T>(props: TableProps<T,K>) => {
         unsetSort
     } = props;
 
-    return (
-        <div>
-            <table className='table'>
-                <TableHeader 
-                    columns={columns}
-                    sorting={sorting}
+    const headerCells = columns.map( (column, index) => {
+            return (
+                <TableCell 
+                    key={`headCell-${index}`}
+                    column={column}
+                    sortableFields={sorting}
                     filterableFields={filterableFields}
                     setFilteringValue={setFilteringValue}
                     searchableFields={searchableFields}
                     handleSearchableChange={handleSearchableChange}
                     setAscendingSort={setAscendingSort}
                     setDescendingSort={setDescendingSort}
-                    unsetSort={unsetSort} 
+                    unsetSort={unsetSort}
                 />
+            )
+        })
 
-                <TableRows data={data} columns={columns} />
-            </table>
-        </div>
+    return (
+        <thead>
+            <tr>{headerCells}</tr>
+        </thead>
     )
 }
