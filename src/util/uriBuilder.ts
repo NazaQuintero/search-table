@@ -38,7 +38,7 @@ export const getSkipedValues = (skipFrom: number): string => {
     if (skipFrom === 0) {
         return '';
     }
-    return `&skip=${skipFrom}`;
+    return `"$skip":${skipFrom}`;
 }
 
 export const getUrl = (baseUri: string, searchedText: string, filterablesFields: FilterableFieldsType , searchableFields: SearchableFieldsType, sorting: SortableFieldsType, skipFrom: number) => {
@@ -48,8 +48,14 @@ export const getUrl = (baseUri: string, searchedText: string, filterablesFields:
     const hasSomeFilteredField = filteredFields !== "";
     const filteredFieldsSeparated = hasSomeValueBefore && hasSomeFilteredField ? `,${filteredFields}` : filteredFields;
 
-    const query = fieldsWithSearchExpression + filteredFieldsSeparated + getSkipedValues(skipFrom);
-    const hint = getUrlSortingFields(sorting);
+    const query = fieldsWithSearchExpression + filteredFieldsSeparated;
+
+    const sortingParams = getUrlSortingFields(sorting);
+    const skipedValues = getSkipedValues(skipFrom);
+    const hasSortingParams = sortingParams !== ""
+    const hasSkipedValues = skipedValues !== ""
+    const skipedParamSeparated = hasSortingParams && hasSkipedValues ? `,${skipedValues}` : skipedValues;
+    const hint = sortingParams + skipedParamSeparated;
 
     return baseUri + `?q={${query}}&h{${hint}}`;
 }

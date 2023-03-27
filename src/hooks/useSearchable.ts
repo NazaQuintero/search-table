@@ -5,7 +5,7 @@ export const useSearchable = (initialValue: SearchableFieldsType) => {
 
     const [searchableFieldsState, setSearchableFields] = useState(initialValue);
 
-    const handleSearchableChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleSearchableChange = (e: any) => {
         setSearchableFields( prevState => ({
             ...prevState,
             [e.target.name]: e.target.checked

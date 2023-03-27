@@ -3,6 +3,7 @@ import { useState } from "react";
 type PaginationConfig = {
     elementsPerPage: number,
     currentPage: number,
+    setCurrentPage: (page: number) => void,
     firstIndex: number,
     totalElements: number
 }
@@ -10,29 +11,27 @@ type PaginationConfig = {
 export const usePagination = (cfg: PaginationConfig) => {
     const { elementsPerPage, totalElements } = cfg;
 
-    const [currentPage, setCurrentPage] = useState(cfg.currentPage);
     const [skipFrom, setSkipFrom] = useState(0);
 
-    const lastIndex = currentPage * elementsPerPage;
+    const lastIndex = cfg.currentPage * elementsPerPage;
     const firstIndex = lastIndex - elementsPerPage;
     const numberOfPages = Math.ceil(totalElements/elementsPerPage);
 
     const setPage = (page: number) => {
-        setCurrentPage(page);
+        cfg.setCurrentPage(page);
     }
     
     const nextPage = () => {
-        if(currentPage !== numberOfPages) {
-            setCurrentPage(prevState => prevState + 1);
+        if(cfg.currentPage < numberOfPages) {
+            cfg.setCurrentPage(cfg.currentPage + 1);
         } else {
-            setSkipFrom(currentPage);
-            // setShouldRefetch(true)
+            setSkipFrom(cfg.currentPage * elementsPerPage);
         }
     }
     
     const prevPage = () => {
-        if(currentPage !== 1) {
-            setCurrentPage(prevState => prevState - 1);
+        if(cfg.currentPage !== 1) {
+            cfg.setCurrentPage(cfg.currentPage - 1);
         }
     }
 
@@ -40,9 +39,8 @@ export const usePagination = (cfg: PaginationConfig) => {
         elementsPerPage,
         firstIndex,
         lastIndex,
-        startFrom: skipFrom + 1,
-        currentPage,
         numberOfPages,
+        skipFrom,
         setPage,
         nextPage,
         prevPage

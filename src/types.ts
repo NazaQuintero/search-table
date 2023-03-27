@@ -30,7 +30,7 @@ export interface CommerceData {
 
 export type SearchableFieldsType = { [propKey: string]: boolean };
 
-export type FilterableFieldsType = { [propKey: string]: number };
+export type FilterableFieldsType = { [propKey: string]: any };
 
 export type SortableFieldsType = { [propKey: string]: number };
 
@@ -46,6 +46,22 @@ export type SortingPayload = {
 }
 
 export type SortingActions = {
-    type: SortingActionTypes;
+    type: SortingActionTypes,
     payload: SortingPayload
+}
+
+export enum FilteringActionTypes {
+    UNSET = 'UNSET',
+    SET = 'SET'
+}
+
+export type FilteringPayload = {
+    filtering: FilterableFieldsType,
+    filteringKey: string,
+    value: any
+}
+
+export type FilteringActions = {
+    type: FilteringActionTypes,
+    payload: FilteringPayload
 }

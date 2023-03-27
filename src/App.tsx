@@ -1,18 +1,17 @@
-import React, { useEffect } from 'react';
+import { useCallback, useState } from 'react';
 import './App.css';
 import { Search } from './components/search/Search';
 import { Table } from './components/table/table';
-import { useCommerceDataRefetch } from './hooks/useCommerceDataRefetch';
-import { Filters } from './components/filters';
 import { Pagination } from './components/pagination/pagination';
-import { ColumnType, CommerceData } from './types';
-import { useSortable } from './hooks/useSorting';
+import { ColumnType, CommerceData, StoresData } from './types';
+import { useSortable } from './hooks/useSortable';
 import { usePagination } from './hooks/usePagination';
 import { useSearchable } from './hooks/useSearchable';
 import { useDataFetch } from './hooks/useDataFetch';
 import { useTextField } from './hooks/useTextField';
 import { ColumnFieldsMapper } from './util/fieldsMapper';
 import { useFilterable } from './hooks/useFilterable';
+import { getUrl } from './util/uriBuilder';
 
 const App = () => {
 
@@ -94,9 +93,10 @@ const App = () => {
   const initialFilterState = fieldsMapper.getInitialFilterableFields(colNames)
   const initialSearchState = fieldsMapper.getInitialSearchableFields(colNames)
 
-  const baseUri = "https://api.koibanx.com/stores";
+  const [url, setUrl] = useState("https://api.koibanx.com/stores");
+  const [pageNumber, setPageNumber] = useState(1)
 
-  const { data, loading, error } =  useDataFetch(baseUri);
+  const { storeData, loading, error } = useDataFetch<StoresData>(url, pageNumber);
 
   const { searchedText, handleTextChange } = useTextField();
 
@@ -104,61 +104,56 @@ const App = () => {
 
   const { sortableFieldsState, setAscendingSort, setDescendingSort, unsetSort } = useSortable(initialSortingState);
 
-  const { filterableFields, handleFilterChange } = useFilterable(initialFilterState);
+  const { filterableFields, setFilteringValue } = useFilterable(initialFilterState);
 
   const {
     elementsPerPage,
-    currentPage,
-    firstIndex,
-    lastIndex,
     numberOfPages,
-    startFrom,
     nextPage,
     prevPage,
-    setPage
+    setPage,
+    skipFrom
   } = usePagination({
-    elementsPerPage: 5,
-    currentPage: 1,
+    elementsPerPage: storeData.rowsPerPage,
+    currentPage: pageNumber,
+    setCurrentPage: setPageNumber,
     firstIndex: 1,
-    totalElements: data ? data.length : 0
+    totalElements: storeData.total
   })
 
-  const { urlWithParams } = useCommerceDataRefetch(baseUri, searchedText, sortableFieldsState, filterableFields, searchableFieldsState, startFrom - 1);
-
-  // useEffect(() => {
-  //   if(shouldRefetch === true) {
-  //     console.log('Url: ', urlWithParams);
-  //   }
-  // }, [shouldRefetch])
-
-  const slicedData = data ? data.slice(firstIndex, lastIndex) : [];
+  const refetch = useCallback(() => {
+    const newUrl = getUrl(url, searchedText, filterableFields, searchableFieldsState, sortableFieldsState, skipFrom)
+    
+    setUrl(newUrl)
+  }, [setUrl, url, searchedText, filterableFields, searchableFieldsState, sortableFieldsState, pageNumber, skipFrom])
 
   return (
     <div>
-      <Search searchedText={searchedText} handleTextChange={handleTextChange} handleSearch={() => { console.log('Refetch!') }}/>
+      <Search searchedText={searchedText} handleTextChange={handleTextChange} handleSearch={refetch}/>
 
-      <Filters 
-        filterableFields={filterableFields}
-        handleFilterChange={handleFilterChange}
-        searchableFields={searchableFieldsState}
-        handleChange={handleSearchableChange}
-      />
-      
+      <br /><br />
+     
       { loading && ( <p>Loading data...</p> ) }
+
+      { error && ( <p>Something went wrong...</p> )}
 
       { !loading && (<>
         <Table 
-          data={slicedData}
+          data={storeData.data}
           columns={colNames}
           sorting={sortableFieldsState}
+          filterableFields={filterableFields}
+          setFilteringValue={setFilteringValue}
+          searchableFields={searchableFieldsState}
+          handleSearchableChange={handleSearchableChange}
           setAscendingSort={setAscendingSort}
           setDescendingSort={setDescendingSort}
           unsetSort={unsetSort} 
         />
 
         <Pagination
-          startFrom={startFrom}
-          currentPage={currentPage}
+          startFrom={1}
+          currentPage={pageNumber}
           elementsPerPage={elementsPerPage}
           numberOfPages={numberOfPages}
           nextPage={nextPage}

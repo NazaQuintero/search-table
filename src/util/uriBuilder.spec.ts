@@ -54,7 +54,7 @@ test('should not add params when activo is -1', () => {
 test('it should return a &skip=value when skip from its greater than 0', () => {
   const skipFrom = 10;
   expect(getSkipedValues(skipFrom)).toBe(
-    `&skip=${skipFrom}`
+    `"$skip":${skipFrom}`
   );
 });
 

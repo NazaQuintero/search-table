@@ -1,18 +1,18 @@
 import { useEffect, useReducer } from "react"
-import { fetchMockedData } from "../util/fetchMock";
+import { FetchMock } from "../util/fetchMock";
 
-type FetchingActionType =
+type FetchingActionType<T> =
 | { type: "fetch" }
-| { type: "data"; data: object }
+| { type: "data"; data: T }
 | { type: "error", error: Error };
 
-type FetchingState = {
+type FetchingState<T> = {
     loading: boolean,
-    data?: any,
+    data?: T,
     error?: string
 }
 
-const fetchReducer = (state: FetchingState, action: FetchingActionType) : FetchingState => {
+const fetchReducer = <T>(state: FetchingState<T>, action: FetchingActionType<T>) : FetchingState<T> => {
     switch (action.type) {
         case "fetch":
             return { ...state, loading: true }
@@ -29,38 +29,35 @@ const fetchReducer = (state: FetchingState, action: FetchingActionType) : Fetchi
 
 }
 
-export const useDataFetch = (url: string) => {
+export const useDataFetch = <T>(url: string, page: number) => {
 
     const [fetchingState, dispatch] = useReducer(fetchReducer, { loading: true, data: {}})
+    console.info('Url: ', url);
     
     useEffect(() => {
-        let unsubscribed = false;
         const fetchStoresData = async () => {
             dispatch( { type: "fetch" } );
 
-            fetchMockedData(url)
-            .then(data => {
-                if (!unsubscribed) {
-                    dispatch( { type: "data", data } )
-                }
-            })
-            .catch(e => dispatch( {
-                type: "error",
-                error: new Error(`Error while trying to fetch data from: '${url}'. ${e.message}`)
-            } 
-            ));
+            FetchMock.getInstance().fetchMockedData(url, page)
+            .then(data => dispatch( { type: "data", data } ))
+            .catch(e => dispatch(
+                    {
+                        type: "error",
+                        error: new Error(`Error while trying to fetch data from: '${url}'. ${e.message}`)
+                    } 
+                )
+            );
         }
         fetchStoresData();
 
         return () => {
-            unsubscribed = true;
             console.log('Unsubscribed!');
         }
-    }, [url])
+    }, [url, page])
 
     return {
         loading: fetchingState.loading,
-        data: fetchingState.data.data,
+        storeData: fetchingState.data as T,
         error: fetchingState.error
     }
 }

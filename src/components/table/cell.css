@@ -1,0 +1,8 @@
+.sort-icon {
+    border: .5px solid gray;
+    cursor: pointer;
+}
+
+.searchable-item {
+    cursor: pointer;
+}
