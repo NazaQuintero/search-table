@@ -18,6 +18,9 @@ jobs:
           
       - name: Installing dependencies
         run: npm install --force
+
+      - name: Testing project
+        run: npm run test
         
       - name: Building project
         run: npm run build
@@ -30,4 +33,4 @@ jobs:
           aws-region: us-east-2
 
       - name: Deploy to S3 bucket
-        run: aws s3 sync ./build/ s3://nquintero-search-table/ --delete
+        run: aws s3 sync ./build/ s3://nquintero-search-table/ --delete --acl public-read
